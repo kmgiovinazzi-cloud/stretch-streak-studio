@@ -19,16 +19,19 @@ export type Database = {
           created_at: string
           followee_id: string
           follower_id: string
+          status: Database["public"]["Enums"]["follow_status"]
         }
         Insert: {
           created_at?: string
           followee_id: string
           follower_id: string
+          status?: Database["public"]["Enums"]["follow_status"]
         }
         Update: {
           created_at?: string
           followee_id?: string
           follower_id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
         }
         Relationships: []
       }
@@ -139,6 +142,7 @@ export type Database = {
           discipline: Database["public"]["Enums"]["discipline"] | null
           display_name: string
           id: string
+          is_private: boolean
           last_stretch_date: string | null
           longest_streak: number
           total_minutes: number
@@ -154,6 +158,7 @@ export type Database = {
           discipline?: Database["public"]["Enums"]["discipline"] | null
           display_name: string
           id: string
+          is_private?: boolean
           last_stretch_date?: string | null
           longest_streak?: number
           total_minutes?: number
@@ -169,6 +174,7 @@ export type Database = {
           discipline?: Database["public"]["Enums"]["discipline"] | null
           display_name?: string
           id?: string
+          is_private?: boolean
           last_stretch_date?: string | null
           longest_streak?: number
           total_minutes?: number
@@ -209,10 +215,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_view_user_media: { Args: { _owner: string }; Returns: boolean }
     }
     Enums: {
       discipline: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"
+      follow_status: "pending" | "accepted"
       post_kind: "photo" | "video"
     }
     CompositeTypes: {
@@ -342,6 +349,7 @@ export const Constants = {
   public: {
     Enums: {
       discipline: ["dancer", "ice_skater", "gymnast", "cheerleader", "other"],
+      follow_status: ["pending", "accepted"],
       post_kind: ["photo", "video"],
     },
   },
