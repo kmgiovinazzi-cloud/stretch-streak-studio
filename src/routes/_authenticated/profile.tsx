@@ -87,9 +87,8 @@ function Profile() {
         </button>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3">
         <Stat label="Streak" value={profile.current_streak} icon={<Flame className="h-3.5 w-3.5 text-flame" />} />
-        <Stat label="Best" value={profile.longest_streak} />
         <Stat label="Minutes" value={profile.total_minutes} />
       </div>
 
