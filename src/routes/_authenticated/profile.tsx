@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile } from "@/lib/queries";
-import { useState } from "react";
-import { Flame, FolderPlus, Settings2, X } from "lucide-react";
+import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar } from "@/lib/queries";
+import { useRef, useState } from "react";
+import { Camera, Flame, FolderPlus, Settings2, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/profile")({
