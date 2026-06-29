@@ -14,7 +14,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedPhotosRouteImport } from './routes/_authenticated/photos'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
@@ -44,11 +43,6 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPhotosRoute = AuthenticatedPhotosRouteImport.update({
-  id: '/photos',
-  path: '/photos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLeaderboardRoute =
@@ -92,7 +86,6 @@ export interface FileRoutesByFullPath {
   '/feed': typeof AuthenticatedFeedRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
-  '/photos': typeof AuthenticatedPhotosRoute
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/search': typeof AuthenticatedSearchRoute
   '/folder/$folderId': typeof AuthenticatedFolderFolderIdRoute
@@ -105,7 +98,6 @@ export interface FileRoutesByTo {
   '/feed': typeof AuthenticatedFeedRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
-  '/photos': typeof AuthenticatedPhotosRoute
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/search': typeof AuthenticatedSearchRoute
   '/folder/$folderId': typeof AuthenticatedFolderFolderIdRoute
@@ -120,7 +112,6 @@ export interface FileRoutesById {
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
-  '/_authenticated/photos': typeof AuthenticatedPhotosRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/folder/$folderId': typeof AuthenticatedFolderFolderIdRoute
@@ -135,7 +126,6 @@ export interface FileRouteTypes {
     | '/feed'
     | '/home'
     | '/leaderboard'
-    | '/photos'
     | '/profile'
     | '/search'
     | '/folder/$folderId'
@@ -148,7 +138,6 @@ export interface FileRouteTypes {
     | '/feed'
     | '/home'
     | '/leaderboard'
-    | '/photos'
     | '/profile'
     | '/search'
     | '/folder/$folderId'
@@ -162,7 +151,6 @@ export interface FileRouteTypes {
     | '/_authenticated/feed'
     | '/_authenticated/home'
     | '/_authenticated/leaderboard'
-    | '/_authenticated/photos'
     | '/_authenticated/profile'
     | '/_authenticated/search'
     | '/_authenticated/folder/$folderId'
@@ -210,13 +198,6 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/photos': {
-      id: '/_authenticated/photos'
-      path: '/photos'
-      fullPath: '/photos'
-      preLoaderRoute: typeof AuthenticatedPhotosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/leaderboard': {
@@ -280,7 +261,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
-  AuthenticatedPhotosRoute: typeof AuthenticatedPhotosRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRouteWithChildren
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedFolderFolderIdRoute: typeof AuthenticatedFolderFolderIdRoute
@@ -291,7 +271,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
-  AuthenticatedPhotosRoute: AuthenticatedPhotosRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRouteWithChildren,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedFolderFolderIdRoute: AuthenticatedFolderFolderIdRoute,
