@@ -126,6 +126,28 @@ function Profile() {
         )}
       </section>
 
+      {/* Routines */}
+      <section className="mt-7">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display text-lg font-semibold">Routines</h2>
+          <button onClick={() => setShowNewRoutine(true)} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs">
+            <Plus className="h-3.5 w-3.5" /> New
+          </button>
+        </div>
+        {routines.length === 0 ? (
+          <div className="rounded-3xl border border-border border-dashed bg-surface/40 p-8 text-center text-sm text-muted-foreground">
+            Save your stretch routines — upload a video or write out the steps as a list.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {routines.map((r: any) => (
+              <RoutineCard key={r.id} routine={r} onDelete={() => qc.invalidateQueries({ queryKey: ["routines"] })} />
+            ))}
+          </div>
+        )}
+      </section>
+
+
       {/* My posts grid */}
       {posts.length > 0 && (
         <section className="mt-7">
