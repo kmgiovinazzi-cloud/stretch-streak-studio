@@ -251,3 +251,108 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
     </Modal>
   );
 }
+
+function RoutineCard({ routine, onDelete }: { routine: any; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const del = useMutation({
+    mutationFn: () => deleteRoutine(routine.id),
+    onSuccess: () => { toast.success("Routine deleted"); onDelete(); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
+  });
+  const Icon = routine.kind === "video" ? Video : ListChecks;
+  return (
+    <div className="rounded-2xl border border-border bg-surface/50 overflow-hidden">
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 p-4 text-left">
+        <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shrink-0">
+          <Icon className="h-4 w-4 text-primary-foreground" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium truncate">{routine.title}</div>
+          <div className="text-xs text-muted-foreground capitalize">{routine.kind}{routine.kind === "list" && routine.steps ? ` · ${routine.steps.length} steps` : ""}</div>
+        </div>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-3">
+          {routine.description && <p className="text-sm text-muted-foreground">{routine.description}</p>}
+          {routine.kind === "video" && routine.media_url && (
+            <video src={routine.media_url} controls className="w-full rounded-xl bg-black" />
+          )}
+          {routine.kind === "list" && Array.isArray(routine.steps) && (
+            <ol className="space-y-1.5 text-sm">
+              {routine.steps.map((s: string, i: number) => (
+                <li key={i} className="flex gap-2"><span className="text-muted-foreground w-5 shrink-0">{i + 1}.</span><span>{s}</span></li>
+              ))}
+            </ol>
+          )}
+          <button
+            onClick={() => { if (confirm("Delete this routine?")) del.mutate(); }}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NewRoutineModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const [kind, setKind] = useState<"video" | "list">("video");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [stepsText, setStepsText] = useState("");
+
+  const m = useMutation({
+    mutationFn: async () => {
+      if (kind === "video") {
+        if (!videoFile) throw new Error("Pick a video");
+        const { publicUrl } = await uploadMedia(videoFile);
+        await createRoutine({ kind: "video", title, description, mediaUrl: publicUrl });
+      } else {
+        const steps = stepsText.split("\n").map(s => s.trim()).filter(Boolean);
+        if (steps.length === 0) throw new Error("Add at least one step");
+        await createRoutine({ kind: "list", title, description, steps });
+      }
+    },
+    onSuccess: () => { toast.success("Routine saved"); onSaved(); onClose(); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
+  });
+
+  return (
+    <Modal onClose={onClose} title="New routine">
+      <div className="flex gap-2 mb-3">
+        <button onClick={() => setKind("video")}
+          className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl border px-3 py-2.5 text-sm ${kind === "video" ? "border-ring bg-surface-2" : "border-border"}`}>
+          <Video className="h-4 w-4" /> Video
+        </button>
+        <button onClick={() => setKind("list")}
+          className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-2xl border px-3 py-2.5 text-sm ${kind === "list" ? "border-ring bg-surface-2" : "border-border"}`}>
+          <ListChecks className="h-4 w-4" /> List
+        </button>
+      </div>
+      <div className="space-y-3">
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Routine title (e.g. Morning Splits)"
+          className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring" />
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" rows={2}
+          className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
+        {kind === "video" ? (
+          <label className="block rounded-2xl border border-border border-dashed bg-surface/40 p-4 text-center text-sm text-muted-foreground cursor-pointer">
+            <input type="file" accept="video/*" className="hidden"
+              onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)} />
+            {videoFile ? videoFile.name : "Tap to choose a video"}
+          </label>
+        ) : (
+          <textarea value={stepsText} onChange={(e) => setStepsText(e.target.value)} rows={6}
+            placeholder={"One step per line\nButterfly stretch — 1 min\nPike fold — 1 min\nSplit hold — 30s each side"}
+            className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none whitespace-pre-wrap" />
+        )}
+        <button onClick={() => m.mutate()} disabled={!title.trim() || m.isPending}
+          className="w-full rounded-2xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-50">
+          {m.isPending ? "Saving…" : "Save routine"}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
