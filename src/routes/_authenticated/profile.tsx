@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia, getTopRankedIds } from "@/lib/queries";
 import { useRef, useState } from "react";
