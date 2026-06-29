@@ -21,7 +21,9 @@ function Profile() {
 
 
   const [showNewFolder, setShowNewFolder] = useState(false);
+  const [showNewRoutine, setShowNewRoutine] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
   const [folderName, setFolderName] = useState("");
   const [folderDesc, setFolderDesc] = useState("");
   const avatarInputRef = useRef<HTMLInputElement>(null);
