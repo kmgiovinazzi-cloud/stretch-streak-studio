@@ -2,10 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { searchPosts, searchFolders } from "@/lib/queries";
 import { Search as SearchIcon, Folder, Hash } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { z } from "zod";
+
+const searchSchema = z.object({ q: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/search")({
   ssr: false,
+  validateSearch: (s) => searchSchema.parse(s),
   head: () => ({ meta: [{ title: "Search — Stretchline" }] }),
   component: Search,
 });
@@ -13,7 +17,9 @@ export const Route = createFileRoute("/_authenticated/search")({
 const TRENDING = ["frontsplits", "needle", "scorpion", "oversplits", "backbend", "middlesplits"];
 
 function Search() {
-  const [q, setQ] = useState("");
+  const initial = Route.useSearch().q ?? "";
+  const [q, setQ] = useState(initial);
+  useEffect(() => { setQ(initial); }, [initial]);
   const term = q.trim();
   const enabled = term.length >= 2;
 
