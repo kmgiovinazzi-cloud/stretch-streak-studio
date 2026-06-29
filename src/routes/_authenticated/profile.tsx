@@ -1,10 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useServerFn } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia, getTopRankedIds } from "@/lib/queries";
 import { useRef, useState } from "react";
 import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { computeBadges, medalForRank, medalColor, MedalIcon, ALL_STYLES, stripEmoji } from "@/lib/badges";
+import { supabase } from "@/integrations/supabase/client";
+import { deleteMyAccount } from "@/lib/account.functions";
 
 
 export const Route = createFileRoute("/_authenticated/profile")({
