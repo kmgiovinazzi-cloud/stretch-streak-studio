@@ -225,3 +225,40 @@ export async function uploadAvatar(file: File): Promise<string> {
   return signed.signedUrl;
 }
 
+export async function getMyRoutines() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  const { data, error } = await supabase
+    .from("routines")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createRoutine(input: {
+  kind: "video" | "list";
+  title: string;
+  description?: string;
+  mediaUrl?: string | null;
+  steps?: string[] | null;
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  const { error } = await supabase.from("routines").insert({
+    user_id: user.id,
+    kind: input.kind,
+    title: input.title,
+    description: input.description ?? null,
+    media_url: input.mediaUrl ?? null,
+    steps: input.steps ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function deleteRoutine(id: string) {
+  const { error } = await supabase.from("routines").delete().eq("id", id);
+  if (error) throw error;
+}
+
