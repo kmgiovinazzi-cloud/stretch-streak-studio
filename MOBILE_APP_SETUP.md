@@ -1,60 +1,41 @@
 # Stretchline — Mobile App (iOS + Android)
 
-Your web app is now Capacitor-ready. This wraps the same site you already published into a real native app you can submit to the **App Store** and **Google Play**.
+Stretchline is a TanStack Start app with SSR, server functions, Supabase auth, and the Lovable AI gateway. That stack **cannot** be exported as a fully static bundle, so the Capacitor shell loads the live hosted web app (`https://stretch-streak-studio.lovable.app`) inside a native WebView. The `dist/` folder is just a tiny offline-fallback shell that satisfies `cap sync`.
 
 ## One-time setup (on your computer)
 
-You need a Mac for iOS (Xcode) and any computer for Android (Android Studio). Chromebooks can do Android only; for iOS use a cloud Mac (MacinCloud) or Codemagic.
-
-1. **Push to GitHub** (already done if you used the + menu → GitHub).
-2. On your computer, clone the repo and install:
-   ```bash
-   git clone <your-repo-url>
-   cd <repo>
-   npm install
-   ```
-3. **Add the native platforms** (run once):
-   ```bash
-   npx cap add ios
-   npx cap add android
-   ```
-4. **Build the web bundle and sync into native projects:**
-   ```bash
-   npm run build
-   npx cap sync
-   ```
-
-## Run it
-
-- **iOS** (Mac required):
-  ```bash
-  npx cap run ios
-  ```
-  Or open in Xcode: `npx cap open ios`
-- **Android**:
-  ```bash
-  npx cap run android
-  ```
-  Or open in Android Studio: `npx cap open android`
-
-## Before submitting to the stores
-
-Open `capacitor.config.ts` and **delete the `server` block** (it points at the Lovable preview for hot-reload during dev). Then:
+You need a Mac for iOS (Xcode). Android works from any OS (Android Studio).
 
 ```bash
-npm run build
+git clone <your-repo-url>
+cd <repo>
+npm install
+npm run cap:build      # generates the dist/ shell
+npx cap add ios        # Mac only
+npx cap add android
 npx cap sync
 ```
 
-This bundles the production web assets inside the app.
+## Run it
+
+- iOS: `npm run cap:open:ios` (then Run in Xcode)
+- Android: `npm run cap:open:android` (then Run in Android Studio)
+
+## Pointing the shell at a different URL
+
+Open `capacitor.config.ts` and change `server.url`, then:
+
+```bash
+npm run cap:sync
+```
 
 ## App Store (iOS) checklist
 
 - Apple Developer account ($99/year)
-- App icon (1024×1024) + launch screen — set in Xcode under `App > Assets`
-- In Xcode → Signing & Capabilities → add **Sign in with Apple** (already wired in the auth screen)
+- App icon (1024×1024) + launch screen in Xcode → `App > Assets`
+- Signing & Capabilities → enable **Sign in with Apple**
 - Privacy Policy URL: `https://stretch-streak-studio.lovable.app/privacy`
-- Account Deletion is already implemented (Profile → Delete account)
+- Account deletion already implemented (Profile → Delete account)
 - Archive → Distribute App → App Store Connect
 
 ## Google Play checklist
@@ -62,14 +43,13 @@ This bundles the production web assets inside the app.
 - Google Play Console account ($25 one-time)
 - App icon (512×512) + feature graphic (1024×500)
 - Privacy Policy URL (same as above)
-- In Android Studio → Build → Generate Signed App Bundle → upload `.aab` to Play Console
+- Android Studio → Build → Generate Signed App Bundle → upload `.aab`
 
-## Updating the app after launch
+## Updating after launch
 
-Any change you make in Lovable just needs:
 ```bash
 git pull
-npm run build
-npx cap sync
+npm run cap:sync
 ```
-Then re-archive/re-upload. Small JS-only changes don't always need a new store review if you keep the same version — but for safety, bump version in Xcode/Android Studio.
+
+JS/UI changes go live automatically because the shell loads the hosted URL. You only need to re-submit to the stores when you change native config (icon, name, permissions, plugins, version).

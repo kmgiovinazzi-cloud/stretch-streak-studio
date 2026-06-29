@@ -9,7 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "cap:build": "node scripts/build-capacitor.mjs",
+    "cap:sync": "npm run cap:build && cap sync",
+    "cap:open:ios": "npm run cap:build && cap sync ios && cap open ios",
+    "cap:open:android": "npm run cap:build && cap sync android && cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
