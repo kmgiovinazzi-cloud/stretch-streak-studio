@@ -327,8 +327,74 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
           className="w-full rounded-2xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-50">
           {m.isPending ? "Saving…" : "Save"}
         </button>
+
+        <div className="mt-6 pt-5 border-t border-border space-y-3">
+          <button
+            type="button"
+            onClick={async () => { await supabase.auth.signOut(); }}
+            className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-2.5 text-sm"
+          >
+            Sign out
+          </button>
+          <DeleteAccountButton />
+          <p className="text-[10px] text-muted-foreground text-center">
+            <Link to="/privacy" className="underline">Privacy</Link> · <Link to="/terms" className="underline">Terms</Link>
+          </p>
+        </div>
       </div>
     </Modal>
+  );
+}
+
+function DeleteAccountButton() {
+  const navigate = useNavigate();
+  const callDelete = useServerFn(deleteMyAccount);
+  const [confirming, setConfirming] = useState(false);
+  const [text, setText] = useState("");
+  const del = useMutation({
+    mutationFn: () => callDelete(),
+    onSuccess: async () => {
+      await supabase.auth.signOut();
+      toast.success("Account deleted");
+      navigate({ to: "/", replace: true });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed to delete account"),
+  });
+
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="w-full rounded-2xl border border-destructive/50 bg-destructive/10 text-destructive px-4 py-2.5 text-sm font-medium inline-flex items-center justify-center gap-2"
+      >
+        <Trash2 className="h-3.5 w-3.5" /> Delete account
+      </button>
+    );
+  }
+  return (
+    <div className="rounded-2xl border border-destructive/50 bg-destructive/5 p-3 space-y-2">
+      <p className="text-xs">This permanently deletes your account, all posts, folders, routines, photos, videos, and stretch logs. This cannot be undone.</p>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder='Type "DELETE" to confirm'
+        className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm outline-none"
+      />
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => { setConfirming(false); setText(""); }}
+          className="flex-1 rounded-xl border border-border bg-surface-2 px-3 py-2 text-xs"
+        >Cancel</button>
+        <button
+          type="button"
+          disabled={text !== "DELETE" || del.isPending}
+          onClick={() => del.mutate()}
+          className="flex-1 rounded-xl bg-destructive text-destructive-foreground px-3 py-2 text-xs font-semibold disabled:opacity-40"
+        >{del.isPending ? "Deleting…" : "Permanently delete"}</button>
+      </div>
+    </div>
   );
 }
 
