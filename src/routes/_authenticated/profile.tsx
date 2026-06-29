@@ -411,7 +411,7 @@ function NewRoutineModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
       <div className="space-y-3">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Routine title (e.g. Morning Splits)"
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring" />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" rows={2}
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Caption — e.g. 'Middle splits, 6 in from floor #middlesplits'" rows={2}
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
         {kind === "video" ? (
           <label className="block rounded-2xl border border-border border-dashed bg-surface/40 p-4 text-center text-sm text-muted-foreground cursor-pointer">
