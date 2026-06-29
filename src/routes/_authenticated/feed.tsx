@@ -21,7 +21,7 @@ function renderCaption(text: string) {
     if (/^#[\p{L}0-9_]+$/u.test(part)) {
       const tag = part.slice(1);
       return (
-        <Link key={i} to="/search" search={{ q: tag } as any} className="text-primary hover:underline">
+        <Link key={i} to="/search" search={{ q: tag }} className="text-primary hover:underline">
           {part}
         </Link>
       );
