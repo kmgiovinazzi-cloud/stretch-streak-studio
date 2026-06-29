@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia } from "@/lib/queries";
+import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia, getTopRankedIds } from "@/lib/queries";
 import { useRef, useState } from "react";
-import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X } from "lucide-react";
+import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X, Check } from "lucide-react";
 import { toast } from "sonner";
+import { computeBadges, medalForRank, medalColor, MedalIcon, ALL_STYLES, stripEmoji } from "@/lib/badges";
 
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -18,6 +19,7 @@ function Profile() {
   const { data: folders = [] } = useQuery({ queryKey: ["folders", profile?.id], queryFn: getMyFolders, enabled: !!profile });
   const { data: routines = [] } = useQuery({ queryKey: ["routines", profile?.id], queryFn: getMyRoutines, enabled: !!profile });
   const { data: posts = [] } = useQuery({ queryKey: ["myPosts", profile?.id], queryFn: () => getUserPosts(profile!.id), enabled: !!profile });
+  const { data: topIds = [] } = useQuery({ queryKey: ["top3"], queryFn: () => getTopRankedIds(3) });
 
 
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -83,8 +85,22 @@ function Profile() {
           }}
         />
         <div className="flex-1 min-w-0">
-          <h1 className="font-display text-2xl font-semibold leading-tight truncate">{profile.display_name}</h1>
+          <h1 className="font-display text-2xl font-semibold leading-tight truncate flex items-center gap-1.5">
+            {profile.display_name}
+            {(() => {
+              const rank = topIds.indexOf(profile.id);
+              const medal = rank >= 0 ? medalForRank(rank + 1) : null;
+              return medal ? <MedalIcon className={`h-5 w-5 ${medalColor[medal]}`} aria-label={`${medal} medal`} /> : null;
+            })()}
+          </h1>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
+          {profile.styles && profile.styles.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {profile.styles.map((s: string) => (
+                <span key={s} className="rounded-full bg-surface-2 border border-border px-2 py-0.5 text-[10px]">{s}</span>
+              ))}
+            </div>
+          )}
           {profile.bio && <p className="mt-2 text-sm">{profile.bio}</p>}
         </div>
         <button onClick={() => setShowSettings(true)} className="rounded-full border border-border p-2 text-muted-foreground hover:text-foreground">
@@ -92,10 +108,38 @@ function Profile() {
         </button>
       </div>
 
+      {(!profile.styles || profile.styles.length === 0) && (
+        <button onClick={() => setShowSettings(true)}
+          className="mt-4 w-full rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-left">
+          <span className="font-semibold">Pick your styles →</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">Tell others what you train: ballet, cheer, acro, contortion…</span>
+        </button>
+      )}
+
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Stat label="Streak" value={profile.current_streak} icon={<Flame className="h-3.5 w-3.5 text-flame" />} />
         <Stat label="Minutes" value={profile.total_minutes} />
       </div>
+
+      {/* Badges */}
+      <section className="mt-7">
+        <h2 className="font-display text-lg font-semibold mb-3">Badges</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {computeBadges(profile).map((b) => {
+            const Icon = b.icon;
+            return (
+              <div key={b.id} className={`rounded-2xl border p-3 text-center transition-opacity ${b.earned ? "border-primary/50 bg-primary/10" : "border-border bg-surface/40 opacity-50"}`}>
+                <div className="flex justify-center">
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${b.earned ? "bg-gradient-primary shadow-glow" : "bg-surface-2"}`}>
+                    <Icon className={`h-5 w-5 ${b.earned ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                  </div>
+                </div>
+                <div className="mt-2 text-[11px] font-semibold leading-tight">{b.label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Folders */}
       <section className="mt-7">
@@ -215,9 +259,14 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
   const [bio, setBio] = useState(profile.bio || "");
   const [country, setCountry] = useState(profile.country || "");
   const [discipline, setDiscipline] = useState(profile.discipline || "dancer");
+  const [styles, setStyles] = useState<string[]>(profile.styles || []);
+
+  function toggleStyle(s: string) {
+    setStyles((cur) => cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]);
+  }
 
   const m = useMutation({
-    mutationFn: () => updateMyProfile({ display_name: displayName, bio, country, discipline }),
+    mutationFn: () => updateMyProfile({ display_name: displayName, bio, country, discipline, styles }),
     onSuccess: () => {
       toast.success("Profile updated");
       qc.invalidateQueries({ queryKey: ["me"] });
@@ -229,8 +278,15 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
   return (
     <Modal onClose={onClose} title="Edit profile">
       <div className="space-y-3">
-        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name"
-          className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring" />
+        <div>
+          <input
+            value={displayName}
+            onChange={(e) => setDisplayName(stripEmoji(e.target.value))}
+            placeholder="Display name"
+            className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1 px-1">No emojis — medals are earned by ranking top 3.</p>
+        </div>
         <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" rows={2}
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
         <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country (e.g. USA)"
@@ -243,6 +299,27 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
           <option value="cheerleader">Cheerleader</option>
           <option value="other">Other</option>
         </select>
+
+        <div>
+          <div className="text-xs text-muted-foreground mb-2">Your styles (tap to toggle)</div>
+          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+            {ALL_STYLES.map((s) => {
+              const on = styles.includes(s);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleStyle(s)}
+                  className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${on ? "border-primary bg-primary/20 text-foreground" : "border-border bg-surface-2 text-muted-foreground"}`}
+                >
+                  {on && <Check className="h-3 w-3" />}
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <button onClick={() => m.mutate()} disabled={m.isPending}
           className="w-full rounded-2xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-50">
           {m.isPending ? "Saving…" : "Save"}
@@ -334,7 +411,7 @@ function NewRoutineModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
       <div className="space-y-3">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Routine title (e.g. Morning Splits)"
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring" />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" rows={2}
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Caption — e.g. 'Middle splits, 6 in from floor #middlesplits'" rows={2}
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
         {kind === "video" ? (
           <label className="block rounded-2xl border border-border border-dashed bg-surface/40 p-4 text-center text-sm text-muted-foreground cursor-pointer">

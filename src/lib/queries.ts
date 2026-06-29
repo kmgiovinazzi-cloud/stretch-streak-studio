@@ -203,11 +203,60 @@ export async function toggleLike(postId: string) {
   return true;
 }
 
-export async function updateMyProfile(patch: { display_name?: string; bio?: string; country?: string; discipline?: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"; avatar_url?: string; username?: string }) {
+export async function updateMyProfile(patch: { display_name?: string; bio?: string; country?: string; discipline?: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"; avatar_url?: string; username?: string; styles?: string[] }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not signed in");
   const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
   if (error) throw error;
+}
+
+export async function getTopRankedIds(limit = 3): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id")
+    .order("current_streak", { ascending: false })
+    .order("longest_streak", { ascending: false })
+    .order("total_minutes", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map((p) => p.id);
+}
+
+export async function searchPosts(term: string, limit = 30) {
+  const t = term.replace(/^#/, "").trim();
+  if (!t) return [];
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id,user_id,kind,media_url,caption,like_count,created_at,folder_id, goal_folders(name)")
+    .ilike("caption", `%${t}%`)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return attachAuthors(data ?? []);
+}
+
+export async function searchFolders(term: string, limit = 30) {
+  const t = term.replace(/^#/, "").trim();
+  if (!t) return [];
+  const { data, error } = await supabase
+    .from("goal_folders")
+    .select("id,user_id,name,description,cover_url,created_at, posts(count)")
+    .or(`name.ilike.%${t}%,description.ilike.%${t}%`)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return attachAuthors(data ?? []);
+}
+
+export async function getPhotosFeed(limit = 60) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id,user_id,kind,media_url,caption,like_count,created_at,folder_id")
+    .eq("kind", "photo")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return attachAuthors(data ?? []);
 }
 
 export async function uploadAvatar(file: File): Promise<string> {

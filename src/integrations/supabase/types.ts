@@ -145,6 +145,7 @@ export type Database = {
           is_private: boolean
           last_stretch_date: string | null
           longest_streak: number
+          styles: string[]
           total_minutes: number
           updated_at: string
           username: string
@@ -161,6 +162,7 @@ export type Database = {
           is_private?: boolean
           last_stretch_date?: string | null
           longest_streak?: number
+          styles?: string[]
           total_minutes?: number
           updated_at?: string
           username: string
@@ -177,6 +179,7 @@ export type Database = {
           is_private?: boolean
           last_stretch_date?: string | null
           longest_streak?: number
+          styles?: string[]
           total_minutes?: number
           updated_at?: string
           username?: string

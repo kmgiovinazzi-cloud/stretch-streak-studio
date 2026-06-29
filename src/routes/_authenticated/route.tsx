@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Compass, Trophy, User, Plus } from "lucide-react";
+import { Home, Compass, Trophy, User, Plus, Image as ImageIcon, Search } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -28,7 +28,9 @@ function AuthedShell() {
   const tabs: { to: string; label: string; icon: typeof Home; primary?: boolean }[] = [
     { to: "/home", label: "Today", icon: Home },
     { to: "/feed", label: "Feed", icon: Compass },
+    { to: "/photos", label: "Photos", icon: ImageIcon },
     { to: "/compose", label: "", icon: Plus, primary: true },
+    { to: "/search", label: "Search", icon: Search },
     { to: "/leaderboard", label: "Ranks", icon: Trophy },
     { to: "/profile", label: "Profile", icon: User },
   ];
@@ -57,10 +59,10 @@ function AuthedShell() {
               return (
                 <Link
                   key={to} to={to}
-                  className={`flex flex-col items-center gap-0.5 rounded-full px-4 py-2 transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex flex-col items-center gap-0.5 rounded-full px-2 py-2 transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">{label}</span>
+                  <span className="text-[9px] font-medium hidden sm:inline">{label}</span>
                 </Link>
               );
             })}
