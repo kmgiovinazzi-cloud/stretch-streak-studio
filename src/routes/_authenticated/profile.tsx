@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar } from "@/lib/queries";
+import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia } from "@/lib/queries";
 import { useRef, useState } from "react";
-import { Camera, Flame, FolderPlus, Settings2, X } from "lucide-react";
+import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/profile")({
   ssr: false,
