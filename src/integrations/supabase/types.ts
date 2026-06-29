@@ -14,7 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      follows: {
+        Row: {
+          created_at: string
+          followee_id: string
+          follower_id: string
+        }
+        Insert: {
+          created_at?: string
+          followee_id: string
+          follower_id: string
+        }
+        Update: {
+          created_at?: string
+          followee_id?: string
+          follower_id?: string
+        }
+        Relationships: []
+      }
+      goal_folders: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          caption: string | null
+          created_at: string
+          folder_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["post_kind"]
+          like_count: number
+          media_url: string
+          thumbnail_url: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          folder_id?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["post_kind"]
+          like_count?: number
+          media_url: string
+          thumbnail_url?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          folder_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["post_kind"]
+          like_count?: number
+          media_url?: string
+          thumbnail_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "goal_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          country: string | null
+          created_at: string
+          current_streak: number
+          discipline: Database["public"]["Enums"]["discipline"] | null
+          display_name: string
+          id: string
+          last_stretch_date: string | null
+          longest_streak: number
+          total_minutes: number
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          current_streak?: number
+          discipline?: Database["public"]["Enums"]["discipline"] | null
+          display_name: string
+          id: string
+          last_stretch_date?: string | null
+          longest_streak?: number
+          total_minutes?: number
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          current_streak?: number
+          discipline?: Database["public"]["Enums"]["discipline"] | null
+          display_name?: string
+          id?: string
+          last_stretch_date?: string | null
+          longest_streak?: number
+          total_minutes?: number
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      stretch_logs: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          id: string
+          log_date: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +212,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      discipline: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"
+      post_kind: "photo" | "video"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +340,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      discipline: ["dancer", "ice_skater", "gymnast", "cheerleader", "other"],
+      post_kind: ["photo", "video"],
+    },
   },
 } as const
