@@ -56,7 +56,7 @@ function PostCard({ post }: { post: any }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed"] }),
   });
 
-  const author = post.profiles;
+  const author = post.author;
   return (
     <article className="rounded-3xl border border-border bg-surface/50 overflow-hidden">
       <div className="flex items-center gap-3 p-4">
