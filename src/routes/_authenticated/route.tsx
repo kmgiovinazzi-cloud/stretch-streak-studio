@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Compass, Trophy, User, Plus } from "lucide-react";
+import { Home, Compass, Trophy, User, Plus, Image as ImageIcon, Search } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -28,7 +28,9 @@ function AuthedShell() {
   const tabs: { to: string; label: string; icon: typeof Home; primary?: boolean }[] = [
     { to: "/home", label: "Today", icon: Home },
     { to: "/feed", label: "Feed", icon: Compass },
+    { to: "/photos", label: "Photos", icon: ImageIcon },
     { to: "/compose", label: "", icon: Plus, primary: true },
+    { to: "/search", label: "Search", icon: Search },
     { to: "/leaderboard", label: "Ranks", icon: Trophy },
     { to: "/profile", label: "Profile", icon: User },
   ];
