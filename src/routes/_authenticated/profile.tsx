@@ -21,6 +21,16 @@ function Profile() {
   const [showSettings, setShowSettings] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [folderDesc, setFolderDesc] = useState("");
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const avatarMutation = useMutation({
+    mutationFn: (file: File) => uploadAvatar(file),
+    onSuccess: () => {
+      toast.success("Profile photo updated");
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Upload failed"),
+  });
 
   const addFolder = useMutation({
     mutationFn: () => createFolder(folderName, folderDesc || undefined),
