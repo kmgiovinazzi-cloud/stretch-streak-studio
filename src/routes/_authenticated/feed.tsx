@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getFeed, toggleLike, getTopRankedIds } from "@/lib/queries";
 import { getFormFeedback } from "@/lib/ai-feedback.functions";
-import { Heart, Folder, Sparkles, Loader2 } from "lucide-react";
+import { Heart, Folder, Sparkles, Loader2, Search } from "lucide-react";
 import { useState } from "react";
 import { medalForRank, medalColor, MedalIcon } from "@/lib/badges";
 import { toast } from "sonner";
@@ -33,13 +33,30 @@ function renderCaption(text: string) {
 function Feed() {
   const { data: posts = [], isLoading } = useQuery({ queryKey: ["feed"], queryFn: () => getFeed(50) });
   const { data: topIds = [] } = useQuery({ queryKey: ["top3"], queryFn: () => getTopRankedIds(3) });
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
 
   return (
     <div className="px-5 pt-10 pb-8">
-      <header className="mb-6">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Feed</h1>
+      <header className="mb-5">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Explore</h1>
         <p className="text-sm text-muted-foreground mt-1">Progress from dancers around the world.</p>
       </header>
+
+      <form
+        onSubmit={(e) => { e.preventDefault(); if (q.trim()) navigate({ to: "/search", search: { q: q.trim() } }); }}
+        className="sticky top-2 z-20 mb-5"
+      >
+        <div className="glass flex items-center gap-2 rounded-full border border-border px-4 py-2.5 shadow-soft">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search routines, goals, #hashtags"
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+      </form>
 
       {isLoading && <div className="text-sm text-muted-foreground">Loading…</div>}
 
