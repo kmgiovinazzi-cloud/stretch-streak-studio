@@ -210,3 +210,18 @@ export async function updateMyProfile(patch: { display_name?: string; bio?: stri
   if (error) throw error;
 }
 
+export async function uploadAvatar(file: File): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: false, contentType: file.type });
+  if (error) throw error;
+  const { data: signed, error: signErr } = await supabase.storage
+    .from("avatars")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+  if (signErr) throw signErr;
+  await updateMyProfile({ avatar_url: signed.signedUrl });
+  return signed.signedUrl;
+}
+
