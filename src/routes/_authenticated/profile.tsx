@@ -16,7 +16,9 @@ function Profile() {
   const qc = useQueryClient();
   const { data: profile } = useQuery({ queryKey: ["me"], queryFn: getMyProfile });
   const { data: folders = [] } = useQuery({ queryKey: ["folders", profile?.id], queryFn: getMyFolders, enabled: !!profile });
+  const { data: routines = [] } = useQuery({ queryKey: ["routines", profile?.id], queryFn: getMyRoutines, enabled: !!profile });
   const { data: posts = [] } = useQuery({ queryKey: ["myPosts", profile?.id], queryFn: () => getUserPosts(profile!.id), enabled: !!profile });
+
 
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
