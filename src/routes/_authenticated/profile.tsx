@@ -259,9 +259,14 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
   const [bio, setBio] = useState(profile.bio || "");
   const [country, setCountry] = useState(profile.country || "");
   const [discipline, setDiscipline] = useState(profile.discipline || "dancer");
+  const [styles, setStyles] = useState<string[]>(profile.styles || []);
+
+  function toggleStyle(s: string) {
+    setStyles((cur) => cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]);
+  }
 
   const m = useMutation({
-    mutationFn: () => updateMyProfile({ display_name: displayName, bio, country, discipline }),
+    mutationFn: () => updateMyProfile({ display_name: displayName, bio, country, discipline, styles }),
     onSuccess: () => {
       toast.success("Profile updated");
       qc.invalidateQueries({ queryKey: ["me"] });
@@ -273,8 +278,15 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
   return (
     <Modal onClose={onClose} title="Edit profile">
       <div className="space-y-3">
-        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name"
-          className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring" />
+        <div>
+          <input
+            value={displayName}
+            onChange={(e) => setDisplayName(stripEmoji(e.target.value))}
+            placeholder="Display name"
+            className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1 px-1">No emojis — medals are earned by ranking top 3.</p>
+        </div>
         <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" rows={2}
           className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
         <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country (e.g. USA)"
@@ -287,6 +299,27 @@ function ProfileSettings({ profile, onClose }: { profile: any; onClose: () => vo
           <option value="cheerleader">Cheerleader</option>
           <option value="other">Other</option>
         </select>
+
+        <div>
+          <div className="text-xs text-muted-foreground mb-2">Your styles (tap to toggle)</div>
+          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+            {ALL_STYLES.map((s) => {
+              const on = styles.includes(s);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleStyle(s)}
+                  className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${on ? "border-primary bg-primary/20 text-foreground" : "border-border bg-surface-2 text-muted-foreground"}`}
+                >
+                  {on && <Check className="h-3 w-3" />}
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <button onClick={() => m.mutate()} disabled={m.isPending}
           className="w-full rounded-2xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-50">
           {m.isPending ? "Saving…" : "Save"}
