@@ -83,7 +83,7 @@ function Compose() {
           </div>
         )}
 
-        <textarea value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Caption (optional)"
+        <textarea value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Caption — e.g. 'Middle splits, 6 in from floor #middlesplits #flexibility'"
           rows={3} className="mt-4 w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none focus:border-ring resize-none" />
 
         <div className="mt-3">
