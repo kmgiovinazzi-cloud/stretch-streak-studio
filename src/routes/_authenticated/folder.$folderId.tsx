@@ -22,7 +22,7 @@ function FolderView() {
       </Link>
       <h1 className="font-display text-3xl font-semibold tracking-tight">{folder.name}</h1>
       {folder.description && <p className="text-sm text-muted-foreground mt-1">{folder.description}</p>}
-      <p className="text-xs text-muted-foreground mt-1">by @{folder.profiles?.username} · {posts.length} posts</p>
+      <p className="text-xs text-muted-foreground mt-1">by @{folder.author?.username} · {posts.length} posts</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         {posts.map((p) => (

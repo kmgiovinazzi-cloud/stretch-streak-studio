@@ -57,14 +57,28 @@ export async function getLeaderboard(limit = 50) {
   return data ?? [];
 }
 
-export async function getFeed(limit = 30) {
+type ProfileLite = { id: string; username: string; display_name: string; avatar_url: string | null };
+
+async function attachAuthors<T extends { user_id: string }>(rows: T[]): Promise<(T & { author: ProfileLite | null })[]> {
+  const ids = Array.from(new Set(rows.map((r) => r.user_id)));
+  if (ids.length === 0) return rows.map((r) => ({ ...r, author: null }));
   const { data, error } = await supabase
+    .from("profiles")
+    .select("id,username,display_name,avatar_url")
+    .in("id", ids);
+  if (error) throw error;
+  const map = new Map<string, ProfileLite>((data ?? []).map((p) => [p.id, p as ProfileLite]));
+  return rows.map((r) => ({ ...r, author: map.get(r.user_id) ?? null }));
+}
+
+export async function getFeed(limit = 30) {
+  const { data: posts, error } = await supabase
     .from("posts")
-    .select("id,user_id,kind,media_url,thumbnail_url,caption,like_count,created_at,folder_id, profiles!posts_user_id_fkey(username,display_name,avatar_url), goal_folders(name)")
+    .select("id,user_id,kind,media_url,thumbnail_url,caption,like_count,created_at,folder_id, goal_folders(name)")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return data ?? [];
+  return attachAuthors(posts ?? []);
 }
 
 export async function getMyFolders() {
@@ -92,12 +106,19 @@ export async function getFoldersByUser(userId: string) {
 export async function getFolder(folderId: string) {
   const { data, error } = await supabase
     .from("goal_folders")
-    .select("*, profiles!goal_folders_user_id_fkey(username,display_name,avatar_url)")
+    .select("*")
     .eq("id", folderId)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  if (!data) return null;
+  const { data: author } = await supabase
+    .from("profiles")
+    .select("id,username,display_name,avatar_url")
+    .eq("id", data.user_id)
+    .maybeSingle();
+  return { ...data, author };
 }
+
 
 export async function getFolderPosts(folderId: string) {
   const { data, error } = await supabase
@@ -182,9 +203,10 @@ export async function toggleLike(postId: string) {
   return true;
 }
 
-export async function updateMyProfile(patch: { display_name?: string; bio?: string; country?: string; discipline?: string; avatar_url?: string; username?: string }) {
+export async function updateMyProfile(patch: { display_name?: string; bio?: string; country?: string; discipline?: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"; avatar_url?: string; username?: string }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not signed in");
   const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
   if (error) throw error;
 }
+

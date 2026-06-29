@@ -25,13 +25,14 @@ function AuthedShell() {
     navigate({ to: "/auth", replace: true });
   }
 
-  const tabs = [
+  const tabs: { to: string; label: string; icon: typeof Home; primary?: boolean }[] = [
     { to: "/home", label: "Today", icon: Home },
     { to: "/feed", label: "Feed", icon: Compass },
     { to: "/compose", label: "", icon: Plus, primary: true },
     { to: "/leaderboard", label: "Ranks", icon: Trophy },
     { to: "/profile", label: "Profile", icon: User },
-  ] as const;
+  ];
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
