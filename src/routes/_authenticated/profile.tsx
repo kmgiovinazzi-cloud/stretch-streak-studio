@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia } from "@/lib/queries";
+import { getMyProfile, getMyFolders, getUserPosts, createFolder, updateMyProfile, uploadAvatar, getMyRoutines, createRoutine, deleteRoutine, uploadMedia, getTopRankedIds } from "@/lib/queries";
 import { useRef, useState } from "react";
-import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X } from "lucide-react";
+import { Camera, Flame, FolderPlus, ListChecks, Plus, Settings2, Trash2, Video, X, Check } from "lucide-react";
 import { toast } from "sonner";
+import { computeBadges, medalForRank, medalColor, MedalIcon, ALL_STYLES, stripEmoji } from "@/lib/badges";
 
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -18,6 +19,7 @@ function Profile() {
   const { data: folders = [] } = useQuery({ queryKey: ["folders", profile?.id], queryFn: getMyFolders, enabled: !!profile });
   const { data: routines = [] } = useQuery({ queryKey: ["routines", profile?.id], queryFn: getMyRoutines, enabled: !!profile });
   const { data: posts = [] } = useQuery({ queryKey: ["myPosts", profile?.id], queryFn: () => getUserPosts(profile!.id), enabled: !!profile });
+  const { data: topIds = [] } = useQuery({ queryKey: ["top3"], queryFn: () => getTopRankedIds(3) });
 
 
   const [showNewFolder, setShowNewFolder] = useState(false);
