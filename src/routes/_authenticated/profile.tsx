@@ -178,7 +178,10 @@ function Profile() {
         </Modal>
       )}
 
+      {showNewRoutine && <NewRoutineModal onClose={() => setShowNewRoutine(false)} onSaved={() => qc.invalidateQueries({ queryKey: ["routines"] })} />}
+
       {showSettings && <ProfileSettings profile={profile} onClose={() => setShowSettings(false)} />}
+
     </div>
   );
 }
