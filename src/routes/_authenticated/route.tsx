@@ -59,10 +59,10 @@ function AuthedShell() {
               return (
                 <Link
                   key={to} to={to}
-                  className={`flex flex-col items-center gap-0.5 rounded-full px-4 py-2 transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex flex-col items-center gap-0.5 rounded-full px-2 py-2 transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">{label}</span>
+                  <span className="text-[9px] font-medium hidden sm:inline">{label}</span>
                 </Link>
               );
             })}
