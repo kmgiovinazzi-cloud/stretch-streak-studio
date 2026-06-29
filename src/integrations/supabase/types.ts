@@ -215,7 +215,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_view_user_media: { Args: { _owner: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       discipline: "dancer" | "ice_skater" | "gymnast" | "cheerleader" | "other"
