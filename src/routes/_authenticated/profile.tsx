@@ -47,11 +47,36 @@ function Profile() {
   return (
     <div className="px-5 pt-10 pb-8">
       <div className="flex items-start gap-4">
-        <div className="h-20 w-20 rounded-3xl bg-gradient-primary shadow-glow flex items-center justify-center overflow-hidden">
+        <button
+          type="button"
+          onClick={() => avatarInputRef.current?.click()}
+          className="relative h-20 w-20 rounded-3xl bg-gradient-primary shadow-glow flex items-center justify-center overflow-hidden group"
+          aria-label="Change profile photo"
+        >
           {profile.avatar_url
             ? <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
             : <span className="font-display text-2xl font-semibold text-primary-foreground">{profile.display_name?.[0]?.toUpperCase()}</span>}
-        </div>
+          <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Camera className="h-5 w-5 text-white" />
+          </span>
+          <span className="absolute bottom-1 right-1 rounded-full bg-background/90 border border-border p-1">
+            <Camera className="h-3 w-3 text-foreground" />
+          </span>
+          {avatarMutation.isPending && (
+            <span className="absolute inset-0 bg-black/60 flex items-center justify-center text-[10px] text-white">Uploading…</span>
+          )}
+        </button>
+        <input
+          ref={avatarInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) avatarMutation.mutate(f);
+            e.target.value = "";
+          }}
+        />
         <div className="flex-1 min-w-0">
           <h1 className="font-display text-2xl font-semibold leading-tight truncate">{profile.display_name}</h1>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
