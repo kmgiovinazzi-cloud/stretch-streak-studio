@@ -85,8 +85,22 @@ function Profile() {
           }}
         />
         <div className="flex-1 min-w-0">
-          <h1 className="font-display text-2xl font-semibold leading-tight truncate">{profile.display_name}</h1>
+          <h1 className="font-display text-2xl font-semibold leading-tight truncate flex items-center gap-1.5">
+            {profile.display_name}
+            {(() => {
+              const rank = topIds.indexOf(profile.id);
+              const medal = rank >= 0 ? medalForRank(rank + 1) : null;
+              return medal ? <MedalIcon className={`h-5 w-5 ${medalColor[medal]}`} aria-label={`${medal} medal`} /> : null;
+            })()}
+          </h1>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
+          {profile.styles && profile.styles.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {profile.styles.map((s: string) => (
+                <span key={s} className="rounded-full bg-surface-2 border border-border px-2 py-0.5 text-[10px]">{s}</span>
+              ))}
+            </div>
+          )}
           {profile.bio && <p className="mt-2 text-sm">{profile.bio}</p>}
         </div>
         <button onClick={() => setShowSettings(true)} className="rounded-full border border-border p-2 text-muted-foreground hover:text-foreground">
@@ -94,10 +108,38 @@ function Profile() {
         </button>
       </div>
 
+      {(!profile.styles || profile.styles.length === 0) && (
+        <button onClick={() => setShowSettings(true)}
+          className="mt-4 w-full rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-left">
+          <span className="font-semibold">Pick your styles →</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">Tell others what you train: ballet, cheer, acro, contortion…</span>
+        </button>
+      )}
+
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Stat label="Streak" value={profile.current_streak} icon={<Flame className="h-3.5 w-3.5 text-flame" />} />
         <Stat label="Minutes" value={profile.total_minutes} />
       </div>
+
+      {/* Badges */}
+      <section className="mt-7">
+        <h2 className="font-display text-lg font-semibold mb-3">Badges</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {computeBadges(profile).map((b) => {
+            const Icon = b.icon;
+            return (
+              <div key={b.id} className={`rounded-2xl border p-3 text-center transition-opacity ${b.earned ? "border-primary/50 bg-primary/10" : "border-border bg-surface/40 opacity-50"}`}>
+                <div className="flex justify-center">
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${b.earned ? "bg-gradient-primary shadow-glow" : "bg-surface-2"}`}>
+                    <Icon className={`h-5 w-5 ${b.earned ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                  </div>
+                </div>
+                <div className="mt-2 text-[11px] font-semibold leading-tight">{b.label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Folders */}
       <section className="mt-7">
